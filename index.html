@@ -1,46 +1,256 @@
-function analyzeMessageText(text) {
-    const lower = text.toLocaleLowerCase("tr-TR");
-    const redFlags = [];
-    const riskyWords = [
-        // Oltalama ve hesap baskısı
-        { word: "askıya", label: "Hesap askıya alma baskısı" },
-        { word: "bloke", label: "Hesap bloke uyarısı" },
-        { word: "tıklayın", label: "Acil tıklama yönlendirmesi" },
-        { word: "şifre", label: "Kimlik/şifre talebi riski" },
-        { word: "doğrulama kodu", label: "Onay/SMS kodu talebi" },
-        { word: "iban", label: "Para transferi / IBAN yönlendirmesi" },
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dijital Kalkan - Mesajlaşma Uygulaması</title>
+    <style>
+        :root {
+            --bg-dark: #0b1120;
+            --card-dark: #151e32;
+            --card-light: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-indigo: #6366f1;
+            --danger-red: #ef4444;
+            --warning-amber: #f59e0b;
+            --success-green: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
-        // Sosyal mühendislik, korkutma ve kamu görevlisi taklidi
-        { word: "örgüt", label: "Örgüt/terör suçlamasıyla korkutma taktiği" },
-        { word: "terör", label: "Terör suçlamasıyla panik yaratma" },
-        { word: "sızdı", label: "Veri/bilgi sızıntısı panik taktiği" },
-        { word: "ele geçirildi", label: "Hesap/kimlik ele geçirilme korkutması" },
-        { word: "savcı", label: "Sahte savcı/adli makam taklidi" },
-        { word: "savcılık", label: "Sahte savcılık bildirimi riski" },
-        { word: "polis", label: "Sahte emniyet/polis taklidi" },
-        { word: "emniyet", label: "Sahte emniyet bildirimi riski" },
-        { word: "jandarma", label: "Sahte kolluk kuvveti taklidi" },
-        { word: "icra", label: "Sahte icra/haciz baskısı" },
-        { word: "uzlaşma", label: "Sahte uzlaşma dosyası dolandırıcılığı" },
-        { word: "dava", label: "Sahte hukuki/ceza davası tehdidi" },
-        { word: "tutuklama", label: "Tutuklama tehdidiyle panik yaratma" },
-        { word: "kimlik bilgilerin", label: "Kimlik bilgileri üzerinden tehdit" },
-        { word: "adınıza", label: "Adınıza işlem/hat açıldı bahanesi" },
-        { word: "operasyon", label: "Sahte gizli operasyon bahanesi" },
-        { word: "gizli tut", label: "Kimseye söyleme / izolasyon taktiği" },
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        // Ödül, kargo ve bahis
-        { word: "bonus", label: "Sahte/şüpheli kazanç vaadi" },
-        { word: "kazandınız", label: "Ödül/ikramiye tuzağı" },
-        { word: "casino", label: "Bahis/kumar yönlendirmesi" },
-        { word: "bahis", label: "Bahis/kumar yönlendirmesi" },
-        { word: "kargo", label: "Kargo teslim/adres bahanesi" },
-        { word: "hgs", label: "Sahte HGS borç bildirimi" }
-    ];
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    riskyWords.forEach(item => {
-        if (lower.includes(item.word)) redFlags.push(item.label);
-    });
+        .app-header {
+            padding: 14px 16px;
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
 
-    return { isRisky: redFlags.length > 0, flags: [...new Set(redFlags)] };
-}
+        .app-header h1 { font-size: 17px; font-weight: 700; }
+
+        .badge-shield {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 5px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .main-layout {
+            flex: 1;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 980px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .manual-box {
+            background: #0f172a;
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .manual-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .manual-textarea {
+            width: 100%;
+            min-height: 76px;
+            background: var(--card-light);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 11px 12px;
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.45;
+            resize: vertical;
+        }
+
+        .manual-question-input {
+            width: 100%;
+            background: var(--card-light);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 12.5px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            border: none;
+            border-radius: 9px;
+            padding: 9px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-gemini {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: var(--card-light);
+            color: var(--text-main);
+            border: 1px solid #334155;
+        }
+
+        .manual-result {
+            background: var(--card-dark);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 11px 12px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            white-space: pre-line;
+        }
+
+        .inbox-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .chat-row {
+            background: var(--card-dark);
+            padding: 13px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .chat-row:active { background: var(--card-light); }
+
+        .chat-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--card-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .chat-preview-info { flex: 1; min-width: 0; }
+        .chat-sender-name { font-size: 14.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+        .chat-time { font-size: 11px; color: var(--text-muted); }
+        .chat-snippet { font-size: 12px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Sohbet Detay Ekranı */
+        #chatDetailScreen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: none;
+            flex-direction: column;
+            z-index: 40;
+        }
+
+        #chatDetailScreen.active { display: flex; }
+
+        .chat-body {
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-bubble {
+            background: var(--card-light);
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .section-card {
+            background: var(--card-dark);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .link-item {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+
+        .link-url { font-size: 12px; color: var(--accent-blue); word-break: break-all; font-weight: 600; }
+        .link-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+        /* Asistan Soru Paneli */
+        #geminiDrawer {
+            position: fixed;
+            left: 0; right: 0; bottom: -100%;
+            max-height: 82vh;
+            background: #0f172a;
+            border-top: 2px solid var(--accent-blue);
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: bottom 0.25s ease;
+            z-index: 80;
+            box-shadow: 0 -12px 32px rgba(0,
