@@ -11,7 +11,9 @@ export default async function handler(req, res) {
   try {
     const { messageText, selectedLink, question } = req.body;
 
-    const prompt = `Sen "Dijital Kalkan" adlı mobil güvenlik asistanısın. Kullanıcının mesajını ve varsa bağlantısını siber güvenlik ve oltalama (phishing) açısından kısa, net ve anlaşılır Türkçe ile analiz et.
+    const prompt = `Sen "Dijital Kalkan" adlı mobil güvenlik asistanısın. Kullanıcının mesajını ve varsa bağlantısını siber güvenlik, oltalama (phishing) ve sosyal mühendislik açısından kısa, net ve anlaşılır Türkçe ile analiz et.
+
+Önemli: Mesajda hiç link olmasa bile; polis/savcı/jandarma/MİT/avukat taklidi, "adınız örgüte karıştı", "bilgileriniz sızdı", sahte icra/uzlaşma/ceza davası, acil para/IBAN/altın/şifre/SMS kodu isteme, panik ve korku yaratma gibi sosyal mühendislik dolandırıcılıklarını mutlaka YÜKSEK RİSK olarak tespit et.
 
 Mesaj Metni: ${messageText || "Belirtilmedi"}
 İncelenen Bağlantı: ${selectedLink || "Yok"}
@@ -19,11 +21,11 @@ Kullanıcı Sorusu: ${question || "Bu mesaj ve bağlantı güvenli mi, neden ş�
 
 Yanıtını şu başlıklarda özetle:
 1. Risk Durumu (Güvenli / Şüpheli / Yüksek Risk)
-2. Gerekçe (Mesaj dili veya bağlantı yapısı)
+2. Gerekçe (Mesaj dili, psikolojik baskı veya bağlantı yapısı)
 3. Öneri (Kullanıcının atması gereken adım)`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
