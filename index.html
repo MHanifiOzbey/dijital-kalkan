@@ -238,7 +238,7 @@
         .link-url { font-size: 12px; color: var(--accent-blue); word-break: break-all; font-weight: 600; }
         .link-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
 
-        /* Gemini Soru Paneli */
+        /* Asistan Soru Paneli */
         #geminiDrawer {
             position: fixed;
             left: 0; right: 0; bottom: -100%;
@@ -314,14 +314,14 @@
 
     <div class="app-header">
         <h1>💬 Mesajlar</h1>
-        <span class="badge-shield">🛡️ Dijital Kalkan + Gemini</span>
+        <span class="badge-shield">🛡️ Dijital Kalkan</span>
     </div>
 
     <div class="main-layout">
-        <!-- HER ZAMAN ERİŞİLEBİLİR MANUEL MESAJ & GEMİNİ'YE SOR ALANI -->
+        <!-- MANUEL MESAJ ANALİZ ALANI -->
         <div class="manual-box">
             <div class="manual-title">
-                <span>✍️ Manuel Mesaj / Link — Gemini'ye Sor</span>
+                <span>✍️ Manuel Mesaj / Link Analizi</span>
                 <span style="font-size:11px; color:var(--text-muted); font-weight:500;">Anlık Test Alanı</span>
             </div>
 
@@ -330,13 +330,13 @@
             <input type="text" id="manualQuestionInput" class="manual-question-input" placeholder="İsteğe bağlı özel soru (boş bırakırsan otomatik güvenlik analizi yapar)">
 
             <div class="btn-row">
-                <button class="btn-sm btn-gemini" onclick="askManualGemini()">✨ Manuel Mesajı Gemini'ye Sor</button>
+                <button class="btn-sm btn-gemini" onclick="askManualGemini()">🔍 Mesajı Analiz Et</button>
                 <button class="btn-sm btn-secondary" onclick="addManualToInbox()">+ Gelen Kutusuna Ekle</button>
                 <button class="btn-sm btn-secondary" onclick="clearManualBox()">Temizle</button>
             </div>
 
             <div id="manualResultBox" class="manual-result">
-                Yukarıdaki alana bir mesaj veya bağlantı yazıp "✨ Manuel Mesajı Gemini'ye Sor" butonuna basabilirsin.
+                Yukarıdaki alana bir mesaj veya bağlantı yazıp "🔍 Mesajı Analiz Et" butonuna basabilirsin.
             </div>
         </div>
 
@@ -384,16 +384,16 @@
             <span onclick="closeChat()" style="cursor:pointer; font-weight:700; color:var(--accent-blue);">← Geri</span>
             <h1 id="detailSenderTitle">Gönderen</h1>
             <button class="btn-sm btn-gemini" onclick="openGeminiDrawer(currentMessage, null, 'Bu mesaj ve içindeki bağlantılar güvenli mi?')">
-                ✨ Gemini'ye Sor
+                🔍 Mesajı İncele
             </button>
         </div>
         <div class="chat-body" id="chatBodyContent"></div>
     </div>
 
-    <!-- SOHBET İÇİ TEK TIKLA GEMİNİ SORU PANELİ -->
+    <!-- SOHBET İÇİ ANALİZ PANELİ -->
     <div id="geminiDrawer">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="font-size:14px; color:var(--accent-blue);">✨ Dijital Kalkan — Gemini Asistanı</b>
+            <b style="font-size:14px; color:var(--accent-blue);">🛡️ Dijital Kalkan — Güvenlik Asistanı</b>
             <button class="btn-sm btn-secondary" onclick="closeGeminiDrawer()">Kapat ✕</button>
         </div>
 
@@ -406,12 +406,12 @@
         </div>
 
         <div class="ask-box">
-            <input type="text" id="customQuestionInput" placeholder="Gemini'ye özel bir soru sor...">
+            <input type="text" id="customQuestionInput" placeholder="Güvenlik hakkında özel bir soru sor...">
             <button class="btn-sm btn-gemini" onclick="askGemini()">Sor</button>
         </div>
 
         <div class="gemini-answer" id="geminiAnswerBox">
-            Bir soru seçin veya yazın; seçili mesaj ya da bağlantı Gemini ile analiz edilsin.
+            Bir soru seçin veya yazın; seçili mesaj ya da bağlantı yapay zeka ile analiz edilsin.
         </div>
     </div>
 
@@ -523,7 +523,7 @@
 
             const links = extractLinks(msgText);
             const question = customQ || "Bu manuel girilen mesaj ve varsa bağlantısı güvenli mi, dolandırıcılık riski nedir?";
-            resultBox.innerText = "Gemini analiz ediyor...";
+            resultBox.innerText = "Asistan analiz ediyor...";
 
             try {
                 resultBox.innerText = await callGeminiBackend(msgText, links[0] || null, question);
@@ -555,7 +555,7 @@
         function clearManualBox() {
             document.getElementById("manualMessageInput").value = "";
             document.getElementById("manualQuestionInput").value = "";
-            document.getElementById("manualResultBox").innerText = "Yukarıdaki alana bir mesaj veya bağlantı yazıp \"✨ Manuel Mesajı Gemini'ye Sor\" butonuna basabilirsin.";
+            document.getElementById("manualResultBox").innerText = "Yukarıdaki alana bir mesaj veya bağlantı yazıp \"🔍 Mesajı Analiz Et\" butonuna basabilirsin.";
         }
 
         function openChat(sender, text) {
@@ -585,7 +585,7 @@
                             <div class="link-meta">${info.reasons.join(" • ")}</div>
                             <div class="btn-row">
                                 <button class="btn-sm btn-gemini" onclick="openGeminiDrawer(currentMessage, '${safeUrl}', 'Bu bağlantıyı ayrıntılı incele: güvenli mi, dolandırıcılık riski var mı?')">
-                                    ✨ Bu Linki Gemini'ye Sor
+                                    🔗 Bu Bağlantıyı İncele
                                 </button>
                             </div>
                         </div>
@@ -603,7 +603,7 @@
                     <div style="font-size:12px;">${msgStatusHtml}</div>
                     <div class="btn-row">
                         <button class="btn-sm btn-gemini" onclick="openGeminiDrawer(currentMessage, null, 'Bu mesaj metninin üslubu, aciliyet baskısı ve dolandırıcılık ihtimali nedir?')">
-                            ✨ Mesajı Gemini'ye Sor
+                            📝 Metni İncele
                         </button>
                     </div>
                 </div>
@@ -643,7 +643,7 @@
             if (!presetQuestion) inputEl.value = "";
 
             const answerBox = document.getElementById("geminiAnswerBox");
-            answerBox.innerText = "Gemini analiz ediyor...";
+            answerBox.innerText = "Asistan analiz ediyor...";
 
             try {
                 answerBox.innerText = await callGeminiBackend(currentMessage, currentSelectedLink, question);
